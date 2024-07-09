@@ -5,46 +5,46 @@ import (
 	"os"
 )
 
-type App struct {
+type logger struct {
 	config Config
 }
 
-func Init(config ...Config) (*App, error) {
-	app := &App{}
+func Init(config ...Config) (*logger, error) {
+	logger := &logger{}
 
 	if len(config) == 1 {
-		app.config = config[0]
+		logger.config = config[0]
 	} else if len(config) > 1 {
 		return nil, errors.New("there can be only one config (or even empty)")
 	} else {
-		app.config.Path = DefaultPath
-		app.config.FileName = DefaultFileName
-		app.config.LiveTime = DefaultLiveTime
+		logger.config.Path = DefaultPath
+		logger.config.FileName = DefaultFileName
+		logger.config.LiveTime = DefaultLiveTime
 	}
 
-	if err := os.MkdirAll(app.config.Path, 0744); err != nil {
+	if err := os.MkdirAll(logger.config.Path, 0744); err != nil {
 		return nil, err
 	}
 
-	return app, nil
+	return logger, nil
 }
 
-func (a *App) Debug(msg string) {
-	a.writer("debug", msg)
+func (l *logger) Debug(msg string) {
+	l.writer("debug", msg)
 }
 
-func (a *App) Info(msg string) {
-	a.writer("info", msg)
+func (l *logger) Info(msg string) {
+	l.writer("info", msg)
 }
 
-func (a *App) Warning(msg string) {
-	a.writer("warning", msg)
+func (l *logger) Warning(msg string) {
+	l.writer("warning", msg)
 }
 
-func (a *App) Error(msg string) {
-	a.writer("error", msg)
+func (l *logger) Error(msg string) {
+	l.writer("error", msg)
 }
 
-func (a *App) Fatal(msg string) {
-	a.writer("fatal", msg)
+func (l *logger) Fatal(msg string) {
+	l.writer("fatal", msg)
 }
