@@ -1,12 +1,25 @@
 package diwef
 
+import "errors"
+
 type App struct {
+	config Config
 }
 
-func Init() *App {
+func Init(config ...Config) (*App, error) {
 	app := &App{}
 
-	return app
+	if len(config) == 1 {
+		app.config = config[0]
+	} else if len(config) > 1 {
+		return nil, errors.New("there can be only one config (or even empty)")
+	} else {
+		app.config.Path = DefaultPath
+		app.config.FileName = DefaultFileName
+		app.config.LiveTime = DefaultLiveTime
+	}
+
+	return app, nil
 }
 
 func (a *App) Debug(msg string) {
