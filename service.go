@@ -7,8 +7,11 @@ import (
 )
 
 func (a *App) writer(level, msg string) {
+	logStr := a.stylingLogStr(level, msg)
 	file := a.openLogFile()
 	defer file.Close()
+
+	file.WriteString(logStr)
 }
 
 func (a *App) openLogFile() *os.File {
@@ -23,4 +26,13 @@ func (a *App) openLogFile() *os.File {
 	}
 
 	return file
+}
+
+func (a *App) stylingLogStr(level, msg string) string {
+	logStr := fmt.Sprintf("time=\"%s\"		level=\"%s\"		msg=\"%s\"\n",
+		time.Now().Format("15:04:05"),
+		level,
+		msg)
+
+	return logStr
 }
