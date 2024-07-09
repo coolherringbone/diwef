@@ -2,6 +2,7 @@ package diwef
 
 import (
 	"os"
+	"os/exec"
 	"testing"
 )
 
@@ -11,6 +12,81 @@ func TestInit(t *testing.T) {
 	initManyConfig(t)
 
 	errorCreatPath(t)
+}
+
+func TestDebug(t *testing.T) {
+	log, err := Init()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	log.Debug("debug_test")
+}
+
+func TestInfo(t *testing.T) {
+	log, err := Init()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	log.Info("info_test")
+}
+
+func TestWarning(t *testing.T) {
+	log, err := Init()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	log.Warning("warning_test")
+}
+
+func TestError(t *testing.T) {
+	log, err := Init()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	log.Error("error_test")
+}
+
+func TestFatal(t *testing.T) {
+	log, err := Init()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	log.Fatal("fatal_test")
+}
+
+func TestOpenLogFileError(t *testing.T) {
+	if os.Getenv("BE_CRASHER") == "1" {
+		path := "log"
+		fileName := ":?"
+		liveTime := 0
+
+		log, err := Init(Config{
+			Path:     path,
+			FileName: fileName,
+			LiveTime: liveTime,
+		})
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		log.Debug("debug_test")
+		return
+	}
+
+	cmd := exec.Command(os.Args[0], "-test.run=TestOpenLogFileError")
+	cmd.Env = append(os.Environ(), "BE_CRASHER=1")
+	err := cmd.Run()
+	e, ok := err.(*exec.ExitError)
+	if ok && !e.Success() {
+		return
+	} else {
+		t.Errorf(err.Error())
+	}
 }
 
 func initEmptyConfig(t *testing.T) {
