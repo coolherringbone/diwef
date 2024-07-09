@@ -30,16 +30,21 @@ func Init(config ...Config) (*App, error) {
 }
 
 func (a *App) Debug(msg string) {
+	a.writer("debug", msg)
 }
 
 func (a *App) Info(msg string) {
+	a.writer("info", msg)
 }
 
 func (a *App) Warning(msg string) {
+	a.writer("warning", msg)
 }
 
 func (a *App) Error(msg string) {
+	a.writer("error", msg)
 }
 
 func (a *App) Fatal(msg string) {
+	a.writer("fatal", msg)
 }
