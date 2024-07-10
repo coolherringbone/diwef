@@ -9,7 +9,9 @@ import (
 
 func setConfig(logger *logger, config []Config) error {
 	if len(config) == 1 {
-		logger.config = config[0]
+		logger.config.Path = nvl(config[0].Path, DefaultPath).(string)
+		logger.config.FileName = nvl(config[0].FileName, DefaultFileName).(string)
+		logger.config.LiveTime = nvl(config[0].LiveTime, DefaultLiveTime).(int)
 	} else if len(config) > 1 {
 		return errors.New("there can be only one config (or even empty)")
 	} else {
@@ -50,4 +52,12 @@ func (l *logger) stylingLogStr(level, msg string) string {
 		msg)
 
 	return logStr
+}
+
+func nvl(a, b any) any {
+	if a == nil || a == "" || a == 0 {
+		return b
+	} else {
+		return a
+	}
 }
