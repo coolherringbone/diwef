@@ -1,10 +1,25 @@
 package diwef
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
 )
+
+func setConfig(logger *logger, config []Config) error {
+	if len(config) == 1 {
+		logger.config = config[0]
+	} else if len(config) > 1 {
+		return errors.New("there can be only one config (or even empty)")
+	} else {
+		logger.config.Path = DefaultPath
+		logger.config.FileName = DefaultFileName
+		logger.config.LiveTime = DefaultLiveTime
+	}
+
+	return nil
+}
 
 func (l *logger) writer(level, msg string) {
 	logStr := l.stylingLogStr(level, msg)
