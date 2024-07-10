@@ -29,6 +29,8 @@ func (l *logger) writer(level, msg string) {
 	defer file.Close()
 
 	file.WriteString(logStr)
+
+	l.clearingLogs()
 }
 
 func (l *logger) openLogFile() *os.File {
@@ -52,6 +54,32 @@ func (l *logger) stylingLogStr(level, msg string) string {
 		msg)
 
 	return logStr
+}
+
+func (l *logger) clearingLogs() {
+	if l.config.LiveTime == 0 {
+		return
+	}
+
+	timeCutoff := time.Now().Add(-24 * time.Duration(l.config.LiveTime) * time.Hour)
+
+	path, err := os.Open(l.config.Path)
+	if err != nil {
+		panic(err)
+	}
+	defer path.Close()
+
+	pathFileList, err := path.Readdir(-1)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, f := range pathFileList {
+		if timeCutoff.After(f.ModTime()) {
+			fullName := fmt.Sprintf("%s/%s", l.config.Path, f.Name())
+			os.Remove(fullName)
+		}
+	}
 }
 
 func nvl(a, b any) any {
