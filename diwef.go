@@ -1,43 +1,39 @@
 package diwef
 
-import (
-	"os"
-)
-
-type logger struct {
-	config Config
+type writer interface {
+	debug(msg string)
+	info(msg string)
+	warning(msg string)
+	error(msg string)
+	fatal(msg string)
 }
 
-func Init(config ...Config) (*logger, error) {
-	logger := &logger{}
+type logger struct {
+	writer writer
+}
 
-	if err := setConfig(logger, config); err != nil {
-		return nil, err
+func Init(writer writer) *logger {
+	return &logger{
+		writer: writer,
 	}
-
-	if err := os.MkdirAll(logger.config.Path, 0744); err != nil {
-		return nil, err
-	}
-
-	return logger, nil
 }
 
 func (l *logger) Debug(msg string) {
-	l.writer("debug", msg)
+	l.writer.debug(msg)
 }
 
 func (l *logger) Info(msg string) {
-	l.writer("info", msg)
+	l.writer.info(msg)
 }
 
 func (l *logger) Warning(msg string) {
-	l.writer("warning", msg)
+	l.writer.warning(msg)
 }
 
 func (l *logger) Error(msg string) {
-	l.writer("error", msg)
+	l.writer.error(msg)
 }
 
 func (l *logger) Fatal(msg string) {
-	l.writer("fatal", msg)
+	l.writer.fatal(msg)
 }
