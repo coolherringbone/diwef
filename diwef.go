@@ -9,31 +9,41 @@ type writer interface {
 }
 
 type logger struct {
-	writer writer
+	writers []writer
 }
 
-func Init(writer writer) *logger {
+func Init(writers ...writer) *logger {
 	return &logger{
-		writer: writer,
+		writers: writers,
 	}
 }
 
 func (l *logger) Debug(msg string) {
-	l.writer.debug(msg)
+	for _, w := range l.writers {
+		w.debug(msg)
+	}
 }
 
 func (l *logger) Info(msg string) {
-	l.writer.info(msg)
+	for _, w := range l.writers {
+		w.info(msg)
+	}
 }
 
 func (l *logger) Warning(msg string) {
-	l.writer.warning(msg)
+	for _, w := range l.writers {
+		w.warning(msg)
+	}
 }
 
 func (l *logger) Error(msg string) {
-	l.writer.error(msg)
+	for _, w := range l.writers {
+		w.error(msg)
+	}
 }
 
 func (l *logger) Fatal(msg string) {
-	l.writer.fatal(msg)
+	for _, w := range l.writers {
+		w.fatal(msg)
+	}
 }
