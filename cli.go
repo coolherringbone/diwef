@@ -1,16 +1,33 @@
 package diwef
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type cliWriter struct {
+	config CliWriter
 }
 
-func NewCliWriter() writer {
+type CliWriter struct {
+	UseLevels []Level
+}
+
+func NewCliWriter(config ...CliWriter) (writer, error) {
+	var w writer
 	var cli = &cliWriter{}
 
-	var w writer = cli
+	if len(config) == 1 {
+		cli.config.UseLevels = nvl(config[0].UseLevels, DefaultUseLevels).([]Level)
+	} else if len(config) > 1 {
+		return nil, errors.New("there can be only one config (or even empty)")
+	} else {
+		cli.config.UseLevels = DefaultUseLevels
+	}
 
-	return w
+	w = cli
+
+	return w, nil
 }
 
 func (cli *cliWriter) debug(msg string) {

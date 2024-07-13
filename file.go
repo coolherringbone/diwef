@@ -12,15 +12,16 @@ type fileWriter struct {
 }
 
 type FileWriter struct {
-	Path     string
-	FileName string
-	LiveTime int
+	Path      string
+	FileName  string
+	UseLevels []Level
+	LiveTime  int
 }
 
 const (
-	DefaultPath     = "log"
-	DefaultFileName = "app"
-	DefaultLiveTime = 0
+	DefaultPath     string = "log"
+	DefaultFileName string = "app"
+	DefaultLiveTime int    = 0
 )
 
 func NewFileWriter(config ...FileWriter) (writer, error) {
@@ -30,12 +31,14 @@ func NewFileWriter(config ...FileWriter) (writer, error) {
 	if len(config) == 1 {
 		f.config.Path = nvl(config[0].Path, DefaultPath).(string)
 		f.config.FileName = nvl(config[0].FileName, DefaultFileName).(string)
+		f.config.UseLevels = nvl(config[0].UseLevels, DefaultUseLevels).([]Level)
 		f.config.LiveTime = nvl(config[0].LiveTime, DefaultLiveTime).(int)
 	} else if len(config) > 1 {
 		return nil, errors.New("there can be only one config (or even empty)")
 	} else {
 		f.config.Path = DefaultPath
 		f.config.FileName = DefaultFileName
+		f.config.UseLevels = DefaultUseLevels
 		f.config.LiveTime = DefaultLiveTime
 	}
 

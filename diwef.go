@@ -8,6 +8,32 @@ type writer interface {
 	fatal(msg string)
 }
 
+type Level struct {
+	name string
+}
+
+var (
+	DebugLevel = Level{
+		name: "debug",
+	}
+	InfoLevel = Level{
+		name: "info",
+	}
+	WarningLevel = Level{
+		name: "warning",
+	}
+	ErrorLevel = Level{
+		name: "error",
+	}
+	FatalLevel = Level{
+		name: "fatal",
+	}
+)
+
+var (
+	DefaultUseLevels = []Level{DebugLevel, InfoLevel, WarningLevel, ErrorLevel, FatalLevel}
+)
+
 type logger struct {
 	writers []writer
 }
