@@ -23,9 +23,9 @@ type FileWriter struct {
 }
 
 const (
-	DefaultPath     string = "log"
-	DefaultFileName string = "app"
-	DefaultLiveTime int    = 0
+	defaultPath     string = "log"
+	defaultFileName string = "app"
+	defaultLiveTime int    = 0
 )
 
 func NewFileWriter(config ...FileWriter) (writer, error) {
@@ -33,15 +33,15 @@ func NewFileWriter(config ...FileWriter) (writer, error) {
 	var f = &fileWriter{}
 
 	if len(config) == 1 {
-		f.config.Path = nvl(config[0].Path, DefaultPath).(string)
-		f.config.FileName = nvl(config[0].FileName, DefaultFileName).(string)
-		f.config.LiveTime = nvl(config[0].LiveTime, DefaultLiveTime).(int)
+		f.config.Path = nvl(config[0].Path, defaultPath).(string)
+		f.config.FileName = nvl(config[0].FileName, defaultFileName).(string)
+		f.config.LiveTime = nvl(config[0].LiveTime, defaultLiveTime).(int)
 	} else if len(config) > 1 {
 		return nil, errors.New("there can be only one config (or even empty)")
 	} else {
-		f.config.Path = DefaultPath
-		f.config.FileName = DefaultFileName
-		f.config.LiveTime = DefaultLiveTime
+		f.config.Path = defaultPath
+		f.config.FileName = defaultFileName
+		f.config.LiveTime = defaultLiveTime
 	}
 
 	f.SetLevel(DebugLevel, InfoLevel, WarningLevel, ErrorLevel, FatalLevel)
