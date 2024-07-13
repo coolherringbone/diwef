@@ -31,26 +31,26 @@ func NewCliWriter(config ...CliWriter) (writer, error) {
 }
 
 func (cli *cliWriter) debug(msg string) {
-	logStr := stylingLogStr("debug", msg)
-	fmt.Print(logStr)
+	cli.writing(DebugLevel, msg)
 }
 
 func (cli *cliWriter) info(msg string) {
-	logStr := stylingLogStr("info", msg)
-	fmt.Print(logStr)
+	cli.writing(InfoLevel, msg)
 }
 
 func (cli *cliWriter) warning(msg string) {
-	logStr := stylingLogStr("warning", msg)
-	fmt.Print(logStr)
+	cli.writing(WarningLevel, msg)
 }
 
 func (cli *cliWriter) error(msg string) {
-	logStr := stylingLogStr("error", msg)
-	fmt.Print(logStr)
+	cli.writing(ErrorLevel, msg)
 }
 
 func (cli *cliWriter) fatal(msg string) {
-	logStr := stylingLogStr("fatal", msg)
+	cli.writing(FatalLevel, msg)
+}
+
+func (cli *cliWriter) writing(level Level, msg string) {
+	logStr := stylingLogStr(level.name, msg)
 	fmt.Print(logStr)
 }

@@ -52,44 +52,27 @@ func NewFileWriter(config ...FileWriter) (writer, error) {
 }
 
 func (f *fileWriter) debug(msg string) {
-	logStr := stylingLogStr("debug", msg)
-	file := f.openLogFile()
-	defer file.Close()
-
-	file.WriteString(logStr)
-
-	f.clearingLogs()
+	f.writing(DebugLevel, msg)
 }
 
 func (f *fileWriter) info(msg string) {
-	logStr := stylingLogStr("info", msg)
-	file := f.openLogFile()
-	defer file.Close()
-
-	file.WriteString(logStr)
-	f.clearingLogs()
+	f.writing(InfoLevel, msg)
 }
 
 func (f *fileWriter) warning(msg string) {
-	logStr := stylingLogStr("warning", msg)
-	file := f.openLogFile()
-	defer file.Close()
-
-	file.WriteString(logStr)
-	f.clearingLogs()
+	f.writing(WarningLevel, msg)
 }
 
 func (f *fileWriter) error(msg string) {
-	logStr := stylingLogStr("error", msg)
-	file := f.openLogFile()
-	defer file.Close()
-
-	file.WriteString(logStr)
-	f.clearingLogs()
+	f.writing(ErrorLevel, msg)
 }
 
 func (f *fileWriter) fatal(msg string) {
-	logStr := stylingLogStr("fatal", msg)
+	f.writing(FatalLevel, msg)
+}
+
+func (f *fileWriter) writing(level Level, msg string) {
+	logStr := stylingLogStr(level.name, msg)
 	file := f.openLogFile()
 	defer file.Close()
 
