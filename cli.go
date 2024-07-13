@@ -1,56 +1,77 @@
 package diwef
 
 import (
-	"errors"
 	"fmt"
 )
 
 type cliWriter struct {
-	config CliWriter
+	debugLevel   level
+	infoLevel    level
+	warningLevel level
+	errorLevel   level
+	fatalLevel   level
 }
 
-type CliWriter struct {
-	UseLevels []Level
-}
-
-func NewCliWriter(config ...CliWriter) (writer, error) {
+func NewCliWriter() writer {
 	var w writer
 	var cli = &cliWriter{}
 
-	if len(config) == 1 {
-		cli.config.UseLevels = nvl(config[0].UseLevels, DefaultUseLevels).([]Level)
-	} else if len(config) > 1 {
-		return nil, errors.New("there can be only one config (or even empty)")
-	} else {
-		cli.config.UseLevels = DefaultUseLevels
-	}
+	cli.SetLevel(DebugLevel, InfoLevel, WarningLevel, ErrorLevel, FatalLevel)
 
 	w = cli
 
-	return w, nil
+	return w
+}
+
+func (cli *cliWriter) SetLevel(level ...level) {
+	cli.debugLevel.activ = false
+	cli.infoLevel.activ = false
+	cli.warningLevel.activ = false
+	cli.errorLevel.activ = false
+	cli.fatalLevel.activ = false
+
+	for _, l := range level {
+		switch l {
+		case DebugLevel:
+			cli.debugLevel = l
+		case InfoLevel:
+			cli.infoLevel = l
+		case WarningLevel:
+			cli.warningLevel = l
+		case ErrorLevel:
+			cli.errorLevel = l
+		case FatalLevel:
+			cli.fatalLevel = l
+		}
+
+	}
 }
 
 func (cli *cliWriter) debug(msg string) {
-	cli.writing(DebugLevel, msg)
+	cli.writing(cli.debugLevel, msg)
 }
 
 func (cli *cliWriter) info(msg string) {
-	cli.writing(InfoLevel, msg)
+	cli.writing(cli.infoLevel, msg)
 }
 
 func (cli *cliWriter) warning(msg string) {
-	cli.writing(WarningLevel, msg)
+	cli.writing(cli.warningLevel, msg)
 }
 
 func (cli *cliWriter) error(msg string) {
-	cli.writing(ErrorLevel, msg)
+	cli.writing(cli.errorLevel, msg)
 }
 
 func (cli *cliWriter) fatal(msg string) {
-	cli.writing(FatalLevel, msg)
+	cli.writing(cli.fatalLevel, msg)
 }
 
-func (cli *cliWriter) writing(level Level, msg string) {
+func (cli *cliWriter) writing(level level, msg string) {
+	if !level.activ {
+		return
+	}
+
 	logStr := stylingLogStr(level.name, msg)
 	fmt.Print(logStr)
 }

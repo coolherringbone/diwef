@@ -8,14 +8,18 @@ import (
 )
 
 type fileWriter struct {
-	config FileWriter
+	config       FileWriter
+	debugLevel   level
+	infoLevel    level
+	warningLevel level
+	errorLevel   level
+	fatalLevel   level
 }
 
 type FileWriter struct {
-	Path      string
-	FileName  string
-	UseLevels []Level
-	LiveTime  int
+	Path     string
+	FileName string
+	LiveTime int
 }
 
 const (
@@ -31,16 +35,16 @@ func NewFileWriter(config ...FileWriter) (writer, error) {
 	if len(config) == 1 {
 		f.config.Path = nvl(config[0].Path, DefaultPath).(string)
 		f.config.FileName = nvl(config[0].FileName, DefaultFileName).(string)
-		f.config.UseLevels = nvl(config[0].UseLevels, DefaultUseLevels).([]Level)
 		f.config.LiveTime = nvl(config[0].LiveTime, DefaultLiveTime).(int)
 	} else if len(config) > 1 {
 		return nil, errors.New("there can be only one config (or even empty)")
 	} else {
 		f.config.Path = DefaultPath
 		f.config.FileName = DefaultFileName
-		f.config.UseLevels = DefaultUseLevels
 		f.config.LiveTime = DefaultLiveTime
 	}
+
+	f.SetLevel(DebugLevel, InfoLevel, WarningLevel, ErrorLevel, FatalLevel)
 
 	if err := os.MkdirAll(f.config.Path, 0744); err != nil {
 		return nil, err
@@ -51,27 +55,55 @@ func NewFileWriter(config ...FileWriter) (writer, error) {
 	return w, nil
 }
 
+func (f *fileWriter) SetLevel(level ...level) {
+	f.debugLevel.activ = false
+	f.infoLevel.activ = false
+	f.warningLevel.activ = false
+	f.errorLevel.activ = false
+	f.fatalLevel.activ = false
+
+	for _, l := range level {
+		switch l {
+		case DebugLevel:
+			f.debugLevel = l
+		case InfoLevel:
+			f.infoLevel = l
+		case WarningLevel:
+			f.warningLevel = l
+		case ErrorLevel:
+			f.errorLevel = l
+		case FatalLevel:
+			f.fatalLevel = l
+		}
+
+	}
+}
+
 func (f *fileWriter) debug(msg string) {
-	f.writing(DebugLevel, msg)
+	f.writing(f.debugLevel, msg)
 }
 
 func (f *fileWriter) info(msg string) {
-	f.writing(InfoLevel, msg)
+	f.writing(f.infoLevel, msg)
 }
 
 func (f *fileWriter) warning(msg string) {
-	f.writing(WarningLevel, msg)
+	f.writing(f.warningLevel, msg)
 }
 
 func (f *fileWriter) error(msg string) {
-	f.writing(ErrorLevel, msg)
+	f.writing(f.errorLevel, msg)
 }
 
 func (f *fileWriter) fatal(msg string) {
-	f.writing(FatalLevel, msg)
+	f.writing(f.fatalLevel, msg)
 }
 
-func (f *fileWriter) writing(level Level, msg string) {
+func (f *fileWriter) writing(level level, msg string) {
+	if !level.activ {
+		return
+	}
+
 	logStr := stylingLogStr(level.name, msg)
 	file := f.openLogFile()
 	defer file.Close()
