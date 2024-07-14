@@ -79,27 +79,27 @@ func (f *fileWriter) SetLevel(level ...level) {
 	}
 }
 
-func (f *fileWriter) debug(msg string) {
+func (f *fileWriter) debug(msg any) {
 	f.writing(f.debugLevel, msg)
 }
 
-func (f *fileWriter) info(msg string) {
+func (f *fileWriter) info(msg any) {
 	f.writing(f.infoLevel, msg)
 }
 
-func (f *fileWriter) warning(msg string) {
+func (f *fileWriter) warning(msg any) {
 	f.writing(f.warningLevel, msg)
 }
 
-func (f *fileWriter) error(msg string) {
+func (f *fileWriter) error(msg any) {
 	f.writing(f.errorLevel, msg)
 }
 
-func (f *fileWriter) fatal(msg string) {
+func (f *fileWriter) fatal(msg any) {
 	f.writing(f.fatalLevel, msg)
 }
 
-func (f *fileWriter) writing(level level, msg string) {
+func (f *fileWriter) writing(level level, msg any) {
 	if !level.activ {
 		return
 	}

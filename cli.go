@@ -47,27 +47,27 @@ func (cli *cliWriter) SetLevel(level ...level) {
 	}
 }
 
-func (cli *cliWriter) debug(msg string) {
+func (cli *cliWriter) debug(msg any) {
 	cli.writing(cli.debugLevel, msg)
 }
 
-func (cli *cliWriter) info(msg string) {
+func (cli *cliWriter) info(msg any) {
 	cli.writing(cli.infoLevel, msg)
 }
 
-func (cli *cliWriter) warning(msg string) {
+func (cli *cliWriter) warning(msg any) {
 	cli.writing(cli.warningLevel, msg)
 }
 
-func (cli *cliWriter) error(msg string) {
+func (cli *cliWriter) error(msg any) {
 	cli.writing(cli.errorLevel, msg)
 }
 
-func (cli *cliWriter) fatal(msg string) {
+func (cli *cliWriter) fatal(msg any) {
 	cli.writing(cli.fatalLevel, msg)
 }
 
-func (cli *cliWriter) writing(level level, msg string) {
+func (cli *cliWriter) writing(level level, msg any) {
 	if !level.activ {
 		return
 	}

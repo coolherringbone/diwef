@@ -13,8 +13,8 @@ func nvl(a, b any) any {
 	}
 }
 
-func stylingLogStr(level, msg string) string {
-	logStr := fmt.Sprintf("time=\"%s\"		level=\"%s\"		msg=\"%s\"\n",
+func stylingLogStr(level, msg any) string {
+	logStr := fmt.Sprintf("time=\"%s\"		level=\"%s\"		msg=\"%v\"\n",
 		time.Now().Format("15:04:05"),
 		level,
 		msg)

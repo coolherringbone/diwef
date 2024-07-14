@@ -2,11 +2,11 @@ package diwef
 
 type writer interface {
 	SetLevel(level ...level)
-	debug(msg string)
-	info(msg string)
-	warning(msg string)
-	error(msg string)
-	fatal(msg string)
+	debug(msg any)
+	info(msg any)
+	warning(msg any)
+	error(msg any)
+	fatal(msg any)
 }
 
 type level struct {
@@ -47,31 +47,31 @@ func Init(writers ...writer) *logger {
 	}
 }
 
-func (l *logger) Debug(msg string) {
+func (l *logger) Debug(msg any) {
 	for _, w := range l.writers {
 		w.debug(msg)
 	}
 }
 
-func (l *logger) Info(msg string) {
+func (l *logger) Info(msg any) {
 	for _, w := range l.writers {
 		w.info(msg)
 	}
 }
 
-func (l *logger) Warning(msg string) {
+func (l *logger) Warning(msg any) {
 	for _, w := range l.writers {
 		w.warning(msg)
 	}
 }
 
-func (l *logger) Error(msg string) {
+func (l *logger) Error(msg any) {
 	for _, w := range l.writers {
 		w.error(msg)
 	}
 }
 
-func (l *logger) Fatal(msg string) {
+func (l *logger) Fatal(msg any) {
 	for _, w := range l.writers {
 		w.fatal(msg)
 	}
