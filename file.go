@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"time"
 )
 
@@ -131,7 +132,9 @@ func (f *fileWriter) clearingLogs() {
 		return
 	}
 
-	timeCutoff := time.Now().Add(-24 * time.Duration(f.config.LiveTime) * time.Hour)
+	dateCutoff := time.Now().Add(-24 * time.Duration(f.config.LiveTime) * time.Hour)
+	dateMask := `\d{1,2}-\d{1,2}-\d{4}`
+	dateMaskRe, _ := regexp.Compile(dateMask)
 
 	path, err := os.Open(f.config.Path)
 	if err != nil {
@@ -145,9 +148,22 @@ func (f *fileWriter) clearingLogs() {
 	}
 
 	for _, file := range pathFileList {
-		if timeCutoff.After(file.ModTime()) {
-			fullName := fmt.Sprintf("%s/%s", f.config.Path, file.Name())
-			os.Remove(fullName)
+		matched, err := regexp.MatchString(f.config.FileName+`-`+dateMask+`.log`, file.Name())
+		if err != nil {
+			panic(err)
+		}
+
+		if matched {
+			dateStr := dateMaskRe.FindAllString(file.Name(), -1)
+			date, err := time.Parse("02-01-2006", dateStr[0])
+			if err != nil {
+				panic(err)
+			}
+
+			if dateCutoff.After(date) {
+				fullName := fmt.Sprintf("%s/%s", f.config.Path, file.Name())
+				os.Remove(fullName)
+			}
 		}
 	}
 }
