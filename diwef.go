@@ -1,45 +1,8 @@
 package diwef
 
-type writer interface {
-	SetLevel(level ...level)
-	debug(msg any)
-	info(msg any)
-	warning(msg any)
-	error(msg any)
-	fatal(msg any)
-}
-
-type level struct {
-	activ bool
-	name  string
-}
-
 type logger struct {
 	writers []writer
 }
-
-var (
-	DebugLevel = level{
-		activ: true,
-		name:  "debug",
-	}
-	InfoLevel = level{
-		activ: true,
-		name:  "info",
-	}
-	WarningLevel = level{
-		activ: true,
-		name:  "warning",
-	}
-	ErrorLevel = level{
-		activ: true,
-		name:  "error",
-	}
-	FatalLevel = level{
-		activ: true,
-		name:  "fatal",
-	}
-)
 
 func Init(writers ...writer) *logger {
 	return &logger{
