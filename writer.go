@@ -3,6 +3,7 @@ package diwef
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"regexp"
 	"time"
@@ -18,6 +19,7 @@ type writer interface {
 
 type fileWriter struct {
 	useLevels map[level]bool
+	formatter formatter
 	path      string
 	fileName  string
 	liveTime  int
@@ -25,6 +27,7 @@ type fileWriter struct {
 
 type FileWriter struct {
 	UseLevels Levels
+	Formatter formatter
 	Path      string
 	FileName  string
 	LiveTime  int
@@ -50,6 +53,7 @@ func NewFileWriter(config ...FileWriter) (writer, error) {
 
 	if len(config) == 1 {
 		f.useLevels = setLevels(nvl(config[0].UseLevels, defaultUseLevel).(Levels))
+		f.formatter = nvl(config[0].Formatter, STRFormatter).(formatter)
 		f.path = nvl(config[0].Path, defaultPath).(string)
 		f.fileName = nvl(config[0].FileName, defaultFileName).(string)
 		f.liveTime = nvl(config[0].LiveTime, defaultLiveTime).(int)
@@ -57,6 +61,7 @@ func NewFileWriter(config ...FileWriter) (writer, error) {
 		return nil, errors.New("there can be only one config (or even empty)")
 	} else {
 		f.useLevels = setLevels(defaultUseLevel)
+		f.formatter = STRFormatter
 		f.path = defaultPath
 		f.fileName = defaultFileName
 		f.liveTime = defaultLiveTime
@@ -133,12 +138,17 @@ func (f *fileWriter) writing(level level, msg any) {
 		return
 	}
 
-	file, _ := f.openLogFile()
+	fullName, file, _ := f.openLogFile()
 	defer file.Close()
 
-	logStr := stylingLogStr(level, msg)
-
-	file.WriteString(logStr)
+	if f.formatter == STRFormatter {
+		log := strFormatting(level, msg)
+		_, _ = file.WriteString(log)
+	} else {
+		data, _ := ioutil.ReadFile(fullName)
+		logs, _ := jsonsFormatting(level, msg, data)
+		_ = ioutil.WriteFile(fullName, logs, 0)
+	}
 
 	_ = f.clearingLogs()
 }
@@ -148,12 +158,12 @@ func (cli *cliWriter) writing(level level, msg any) {
 		return
 	}
 
-	logStr := stylingLogStr(level, msg)
+	log := strFormatting(level, msg)
 
-	fmt.Print(logStr)
+	fmt.Print(log)
 }
 
-func (f *fileWriter) openLogFile() (*os.File, error) {
+func (f *fileWriter) openLogFile() (string, *os.File, error) {
 	fullName := fmt.Sprintf("%s/%s-%s.log",
 		f.path,
 		f.fileName,
@@ -161,10 +171,10 @@ func (f *fileWriter) openLogFile() (*os.File, error) {
 
 	file, err := os.OpenFile(fullName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0744)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
-	return file, nil
+	return fullName, file, nil
 }
 
 func (f *fileWriter) clearingLogs() error {
