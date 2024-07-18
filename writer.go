@@ -143,15 +143,17 @@ func (f *fileWriter) writing(level level, msg any) {
 		return
 	}
 
+	caller := getCallerInfo(3)
+
 	fullName, file, _ := f.openLogFile()
 	defer file.Close()
 
 	if f.formatter == STRFormatter {
-		log := strFormatting(level, msg)
+		log := strFormatting(level, msg, caller)
 		_, _ = file.WriteString(log)
 	} else {
 		data, _ := ioutil.ReadFile(fullName)
-		logs, _ := jsonsFormatting(level, msg, data)
+		logs, _ := jsonsFormatting(level, msg, caller, data)
 		_ = ioutil.WriteFile(fullName, logs, 0)
 	}
 
@@ -163,7 +165,9 @@ func (cli *cliWriter) writing(level level, msg any) {
 		return
 	}
 
-	log := strFormatting(level, msg)
+	caller := getCallerInfo(3)
+
+	log := strFormatting(level, msg, caller)
 
 	fmt.Print(log)
 }
