@@ -15,6 +15,8 @@ type writer interface {
 	warning(msg any)
 	error(msg any)
 	fatal(msg any)
+
+	getInfo() string
 }
 
 type fileWriter struct {
@@ -112,6 +114,32 @@ func NewCliWriter(config ...CliWriter) (writer, error) {
 	return w, nil
 }
 
+func CheckValidWriters(writers []writer) error {
+	if len(writers) == 0 {
+		return errors.New("there must be at least one writer")
+	}
+
+	for i, w := range writers {
+		inf := w.getInfo()
+
+		for j, ww := range writers {
+			if i >= j {
+				continue
+			}
+
+			if inf == ww.getInfo() {
+				if inf == "cli" {
+					return errors.New("there can be only one cli writer")
+				} else {
+					return errors.New("there is already such a file writer")
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
 func (f *fileWriter) debug(msg any) {
 	f.writing(DebugLevel, msg)
 }
@@ -150,6 +178,14 @@ func (f *fileWriter) fatal(msg any) {
 
 func (cli *cliWriter) fatal(msg any) {
 	cli.writing(FatalLevel, msg)
+}
+
+func (f *fileWriter) getInfo() string {
+	return "file" + f.path + f.fileName
+}
+
+func (cli *cliWriter) getInfo() string {
+	return "cli"
 }
 
 func (f *fileWriter) writing(level level, msg any) {

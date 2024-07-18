@@ -4,10 +4,14 @@ type Logger struct {
 	writers []writer
 }
 
-func Init(writers ...writer) *Logger {
+func Init(writers ...writer) (*Logger, error) {
+	if err := CheckValidWriters(writers); err != nil {
+		return nil, err
+	}
+
 	return &Logger{
 		writers: writers,
-	}
+	}, nil
 }
 
 func (l *Logger) Debug(msg any) {
