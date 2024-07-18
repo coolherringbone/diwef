@@ -145,19 +145,39 @@ func (f *fileWriter) writing(level level, msg any) {
 
 	caller := getCallerInfo(3)
 
-	fullName, file, _ := f.openLogFile()
+	fullName, file, err := f.openLogFile()
+	if err != nil {
+		panic(err)
+	}
 	defer file.Close()
 
 	if f.formatter == STRFormatter {
 		log := strFormatting(level, msg, caller)
-		_, _ = file.WriteString(log)
+		_, err = file.WriteString(log)
+		if err != nil {
+			panic(err)
+		}
 	} else {
-		data, _ := ioutil.ReadFile(fullName)
-		logs, _ := jsonsFormatting(level, msg, caller, data)
-		_ = ioutil.WriteFile(fullName, logs, 0)
+		data, err := ioutil.ReadFile(fullName)
+		if err != nil {
+			panic(err)
+		}
+
+		logs, err := jsonsFormatting(level, msg, caller, data)
+		if err != nil {
+			panic(err)
+		}
+
+		err = ioutil.WriteFile(fullName, logs, 0)
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	_ = f.clearingLogs()
+	err = f.clearingLogs()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (cli *cliWriter) writing(level level, msg any) {
@@ -169,7 +189,10 @@ func (cli *cliWriter) writing(level level, msg any) {
 
 	log := strFormatting(level, msg, caller)
 
-	fmt.Print(log)
+	_, err := fmt.Print(log)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (f *fileWriter) openLogFile() (string, *os.File, error) {
@@ -195,7 +218,10 @@ func (f *fileWriter) clearingLogs() error {
 
 	dateCutoff := time.Now().Add(-24 * time.Duration(f.liveTime) * time.Hour)
 	dateMask := `\d{1,2}-\d{1,2}-\d{4}`
-	dateMaskRe, _ := regexp.Compile(dateMask)
+	dateMaskRe, err := regexp.Compile(dateMask)
+	if err != nil {
+		return err
+	}
 
 	path, err := os.Open(f.path)
 	if err != nil {
