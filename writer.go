@@ -53,8 +53,18 @@ func NewFileWriter(config ...FileWriter) (writer, error) {
 	var f = &fileWriter{}
 
 	if len(config) == 1 {
-		f.useLevels = setLevels(nvl(config[0].UseLevels, defaultUseLevel).(Levels))
-		f.formatter = nvl(config[0].Formatter, STRFormatter).(formatter)
+		if len(config[0].UseLevels) != 0 {
+			f.useLevels = setLevels(config[0].UseLevels)
+		} else {
+			f.useLevels = setLevels(defaultUseLevel)
+		}
+
+		if config[0].Formatter != "" {
+			f.formatter = config[0].Formatter
+		} else {
+			f.formatter = STRFormatter
+		}
+
 		f.path = nvl(config[0].Path, defaultPath).(string)
 		f.fileName = nvl(config[0].FileName, defaultFileName).(string)
 		f.liveTime = nvl(config[0].LiveTime, defaultLiveTime).(int)
@@ -86,7 +96,11 @@ func NewCliWriter(config ...CliWriter) (writer, error) {
 	var cli = &cliWriter{}
 
 	if len(config) == 1 {
-		cli.useLevels = setLevels(nvl(config[0].UseLevels, defaultUseLevel).(Levels))
+		if len(config[0].UseLevels) != 0 {
+			cli.useLevels = setLevels(config[0].UseLevels)
+		} else {
+			cli.useLevels = setLevels(defaultUseLevel)
+		}
 	} else if len(config) > 1 {
 		return nil, errors.New("there can be only one config (or even empty)")
 	} else {
