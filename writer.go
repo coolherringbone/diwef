@@ -18,11 +18,12 @@ type writer interface {
 }
 
 type fileWriter struct {
-	useLevels map[level]bool
-	formatter formatter
-	path      string
-	fileName  string
-	liveTime  int
+	useLevels    map[level]bool
+	formatter    formatter
+	path         string
+	fileName     string
+	liveTime     int
+	clearingTime time.Time
 }
 
 type FileWriter struct {
@@ -68,6 +69,10 @@ func NewFileWriter(config ...FileWriter) (writer, error) {
 	}
 
 	if err := os.MkdirAll(f.path, 0744); err != nil {
+		return nil, err
+	}
+
+	if err := f.clearingLogs(); err != nil {
 		return nil, err
 	}
 
@@ -178,8 +183,10 @@ func (f *fileWriter) openLogFile() (string, *os.File, error) {
 }
 
 func (f *fileWriter) clearingLogs() error {
-	if f.liveTime == 0 {
+	if f.liveTime == 0 || time.Now().Format(time.DateOnly) == f.clearingTime.Format(time.DateOnly) {
 		return nil
+	} else {
+		f.clearingTime = time.Now()
 	}
 
 	dateCutoff := time.Now().Add(-24 * time.Duration(f.liveTime) * time.Hour)
